@@ -201,6 +201,8 @@ query "cost_by_resource_group_dashboard_cost_by_resource_group_details" {
 
 query "cost_by_resource_group_dashboard_resource_groups_input" {
   sql = <<-EOQ
+    select 'all' as value, 'All' as label
+    union all
     select
       resource_group_name as value,
       resource_group_name as label
@@ -209,7 +211,7 @@ query "cost_by_resource_group_dashboard_resource_groups_input" {
     group by
       resource_group_name
     order by
-      resource_group_name;
+      label;
   EOQ
 
   tags = {

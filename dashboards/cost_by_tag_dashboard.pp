@@ -295,6 +295,8 @@ query "cost_by_tag_dashboard_cost_by_tag_details" {
 
 query "cost_by_tag_dashboard_tags_input" {
   sql = <<-EOQ
+    select 'all' as value, 'All' as label
+    union all
     select
       tag_key as value,
       tag_key as label
@@ -314,7 +316,7 @@ query "cost_by_tag_dashboard_tags_input" {
     group by
       tag_key
     order by
-      tag_key;
+      label;
   EOQ
 
   tags = {

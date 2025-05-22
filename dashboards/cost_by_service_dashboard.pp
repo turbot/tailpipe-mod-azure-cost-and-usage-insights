@@ -201,6 +201,8 @@ query "cost_by_service_dashboard_cost_by_service_details" {
 
 query "cost_by_service_dashboard_services_input" {
   sql = <<-EOQ
+    select 'all' as value, 'All' as label
+    union all
     select
       consumed_service as value,
       consumed_service as label
@@ -209,7 +211,7 @@ query "cost_by_service_dashboard_services_input" {
     group by
       consumed_service
     order by
-      consumed_service;
+      label;
   EOQ
 
   tags = {

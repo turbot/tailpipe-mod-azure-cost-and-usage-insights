@@ -311,6 +311,8 @@ query "overview_dashboard_top_10_resources" {
 
 query "overview_dashboard_subscriptions_input" {
   sql = <<-EOQ
+    select 'all' as value, 'All' as label
+    union all
     select
       subscription_id as value,
       subscription_name as label
@@ -320,7 +322,7 @@ query "overview_dashboard_subscriptions_input" {
       subscription_id,
       subscription_name
     order by
-      subscription_name;
+      label;
   EOQ
 
   tags = {
