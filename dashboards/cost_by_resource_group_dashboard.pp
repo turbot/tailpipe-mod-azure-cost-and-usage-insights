@@ -2,10 +2,12 @@ dashboard "cost_by_resource_group_dashboard" {
   title         = "Cost Management: Cost by Resource Group"
   documentation = file("./dashboards/docs/cost_by_resource_group_dashboard.md")
 
-  tags = {
-    type    = "Dashboard"
-    service = "Azure/CostManagement"
-  }
+  tags = merge(
+    local.azure_cost_management_insights_common_tags,
+    {
+      type = "Dashboard"
+    }
+  )
 
   container {
     input "cost_by_resource_group_dashboard_resource_groups" {

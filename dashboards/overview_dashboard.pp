@@ -2,10 +2,12 @@ dashboard "overview_dashboard" {
   title         = "Cost Management: Overview"
   documentation = file("./dashboards/docs/overview_dashboard.md")
 
-  tags = {
-    type    = "Dashboard"
-    service = "Azure/CostManagement"
-  }
+  tags = merge(
+    local.azure_cost_management_insights_common_tags,
+    {
+      type = "Dashboard"
+    }
+  )
 
   container {
     input "overview_dashboard_subscriptions" {
