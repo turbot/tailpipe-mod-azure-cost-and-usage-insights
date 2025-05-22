@@ -208,6 +208,8 @@ query "cost_by_service_dashboard_services_input" {
       consumed_service as label
     from
       azure_cost_management
+    where
+      consumed_service is not null and consumed_service != ''
     group by
       consumed_service
     order by

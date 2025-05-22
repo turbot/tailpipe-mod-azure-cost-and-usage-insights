@@ -301,17 +301,17 @@ query "cost_by_tag_dashboard_tags_input" {
       tag_key as value,
       tag_key as label
     from (
-      select 'env' as tag_key from azure_cost_management where json_extract(tags, '$.env') is not null
+      select 'env' as tag_key from azure_cost_management where json_extract(tags, '$.env') is not null and json_extract(tags, '$.env') != ''
       union
-      select 'owner' as tag_key from azure_cost_management where json_extract(tags, '$.owner') is not null
+      select 'owner' as tag_key from azure_cost_management where json_extract(tags, '$.owner') is not null and json_extract(tags, '$.owner') != ''
       union
-      select 'cc' as tag_key from azure_cost_management where json_extract(tags, '$.cc') is not null
+      select 'cc' as tag_key from azure_cost_management where json_extract(tags, '$.cc') is not null and json_extract(tags, '$.cc') != ''
       union
-      select 'cost_center' as tag_key from azure_cost_management where json_extract(tags, '$.cost_center') is not null
+      select 'cost_center' as tag_key from azure_cost_management where json_extract(tags, '$.cost_center') is not null and json_extract(tags, '$.cost_center') != ''
       union
-      select 'manager' as tag_key from azure_cost_management where json_extract(tags, '$.manager') is not null
+      select 'manager' as tag_key from azure_cost_management where json_extract(tags, '$.manager') is not null and json_extract(tags, '$.manager') != ''
       union
-      select 'Environment' as tag_key from azure_cost_management where json_extract(tags, '$.Environment') is not null
+      select 'Environment' as tag_key from azure_cost_management where json_extract(tags, '$.Environment') is not null and json_extract(tags, '$.Environment') != ''
     ) tag_keys
     group by
       tag_key

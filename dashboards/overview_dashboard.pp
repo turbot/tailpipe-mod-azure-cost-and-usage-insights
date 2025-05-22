@@ -318,6 +318,9 @@ query "overview_dashboard_subscriptions_input" {
       subscription_name as label
     from
       azure_cost_management
+    where
+      subscription_id is not null and subscription_id != ''
+      and subscription_name is not null and subscription_name != ''
     group by
       subscription_id,
       subscription_name

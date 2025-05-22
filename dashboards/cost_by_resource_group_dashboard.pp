@@ -208,6 +208,8 @@ query "cost_by_resource_group_dashboard_resource_groups_input" {
       resource_group_name as label
     from
       azure_cost_management
+    where
+      resource_group_name is not null and resource_group_name != ''
     group by
       resource_group_name
     order by
