@@ -1,4 +1,4 @@
-# Cost Management: Cost by Tag Dashboard
+# Cost and Usage: Cost by Tag Dashboard
 
 This dashboard provides a detailed breakdown of Azure costs by tag value, helping you analyze and allocate spending based on custom tags across your subscriptions.
 
@@ -23,7 +23,7 @@ The dashboard includes:
 
 ## Data Sources
 
-This dashboard uses data from the `azure_cost_management` table, which is populated by the Azure plugin for Tailpipe. Tag data is sourced from the `tags` column in this table.
+This dashboard uses data from the `azure_cost_and_usage_details` table, which is populated by the Azure plugin for Tailpipe. Tag data is sourced from the `tags` column in this table.
 
 ## Notes
 

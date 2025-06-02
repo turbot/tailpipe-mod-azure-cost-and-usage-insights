@@ -1,9 +1,9 @@
 dashboard "cost_by_subscription_dashboard" {
-  title         = "Cost Management: Cost by Subscription"
+  title         = "Cost and Usage: Cost by Subscription"
   documentation = file("./dashboards/docs/cost_by_subscription_dashboard.md")
 
   tags = merge(
-    local.azure_cost_management_insights_common_tags,
+    local.azure_cost_and_usage_insights_common_tags,
     {
       type = "Dashboard"
     }
@@ -92,7 +92,7 @@ query "cost_by_subscription_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -112,7 +112,7 @@ query "cost_by_subscription_dashboard_total_subscriptions" {
       'Subscriptions' as label,
       count(distinct subscription_id) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1);
   EOQ
@@ -130,7 +130,7 @@ query "cost_by_subscription_dashboard_cost_by_subscription" {
       subscription_name as "Subscription",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -153,7 +153,7 @@ query "cost_by_subscription_dashboard_monthly_cost_by_subscription" {
       subscription_name as "Subscription",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -181,7 +181,7 @@ query "cost_by_subscription_dashboard_cost_by_subscription_details" {
       count(distinct consumed_service) as "Services",
       count(distinct resource_id) as "Resources"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -206,7 +206,7 @@ query "cost_by_subscription_dashboard_subscriptions_input" {
       subscription_id as value,
       subscription_name as label
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       subscription_id is not null and subscription_id != ''
       and subscription_name is not null and subscription_name != ''

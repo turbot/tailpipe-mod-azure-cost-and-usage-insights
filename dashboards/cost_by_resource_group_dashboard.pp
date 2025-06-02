@@ -1,9 +1,9 @@
 dashboard "cost_by_resource_group_dashboard" {
-  title         = "Cost Management: Cost by Resource Group"
+  title         = "Cost and Usage: Cost by Resource Group"
   documentation = file("./dashboards/docs/cost_by_resource_group_dashboard.md")
 
   tags = merge(
-    local.azure_cost_management_insights_common_tags,
+    local.azure_cost_and_usage_insights_common_tags,
     {
       type = "Dashboard"
     }
@@ -92,7 +92,7 @@ query "cost_by_resource_group_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or resource_group_name in $1)
     group by
@@ -112,7 +112,7 @@ query "cost_by_resource_group_dashboard_total_resource_groups" {
       'Resource Groups' as label,
       count(distinct resource_group_name) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or resource_group_name in $1);
   EOQ
@@ -130,7 +130,7 @@ query "cost_by_resource_group_dashboard_cost_by_resource_group" {
       resource_group_name as "Resource Group",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or resource_group_name in $1)
     group by
@@ -153,7 +153,7 @@ query "cost_by_resource_group_dashboard_monthly_cost_by_resource_group" {
       resource_group_name as "Resource Group",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or resource_group_name in $1)
     group by
@@ -181,7 +181,7 @@ query "cost_by_resource_group_dashboard_cost_by_resource_group_details" {
       count(distinct consumed_service) as "Services",
       count(distinct resource_id) as "Resources"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or resource_group_name in $1)
     group by
@@ -207,7 +207,7 @@ query "cost_by_resource_group_dashboard_resource_groups_input" {
       resource_group_name as value,
       resource_group_name as label
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       resource_group_name is not null and resource_group_name != ''
     group by

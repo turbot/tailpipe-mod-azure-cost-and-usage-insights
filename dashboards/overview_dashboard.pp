@@ -1,9 +1,9 @@
 dashboard "overview_dashboard" {
-  title         = "Cost Management: Overview"
+  title         = "Cost and Usage: Overview"
   documentation = file("./dashboards/docs/overview_dashboard.md")
 
   tags = merge(
-    local.azure_cost_management_insights_common_tags,
+    local.azure_cost_and_usage_insights_common_tags,
     {
       type = "Dashboard"
     }
@@ -133,7 +133,7 @@ query "overview_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -153,7 +153,7 @@ query "overview_dashboard_total_subscriptions" {
       'Subscriptions' as label,
       count(distinct subscription_id) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1);
   EOQ
@@ -171,7 +171,7 @@ query "overview_dashboard_monthly_cost" {
       strftime(date_trunc('month', date), '%b %Y') as "Month",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -193,7 +193,7 @@ query "overview_dashboard_daily_cost" {
       strftime(date_trunc('day', date), '%Y-%m-%d') as "Date",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -216,7 +216,7 @@ query "overview_dashboard_top_10_subscriptions" {
       round(sum(cost_in_billing_currency), 2) as "Total Cost",
       billing_currency as "Currency"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -241,7 +241,7 @@ query "overview_dashboard_top_10_resource_groups" {
       round(sum(cost_in_billing_currency), 2) as "Total Cost",
       billing_currency as "Currency"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -266,7 +266,7 @@ query "overview_dashboard_top_10_services" {
       round(sum(cost_in_billing_currency), 2) as "Total Cost",
       billing_currency as "Currency"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -291,7 +291,7 @@ query "overview_dashboard_top_10_resources" {
       round(sum(cost_in_billing_currency), 2) as "Total Cost",
       billing_currency as "Currency"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or subscription_id in $1)
     group by
@@ -317,7 +317,7 @@ query "overview_dashboard_subscriptions_input" {
       subscription_id as value,
       subscription_name as label
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       subscription_id is not null and subscription_id != ''
       and subscription_name is not null and subscription_name != ''

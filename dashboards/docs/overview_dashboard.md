@@ -1,4 +1,4 @@
-# Cost Management: Overview Dashboard
+# Cost and Usage: Overview Dashboard
 
 This dashboard provides a comprehensive overview of your Azure costs across subscriptions, resource groups, services, and resources.
 
@@ -24,7 +24,7 @@ The dashboard includes:
 
 ## Data Sources
 
-This dashboard uses data from the `azure_cost_management` table, which is populated by the Azure plugin for Tailpipe.
+This dashboard uses data from the `azure_cost_and_usage_details` table, which is populated by the Azure plugin for Tailpipe.
 
 ## Notes
 

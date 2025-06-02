@@ -1,7 +1,7 @@
 locals {
-  azure_cost_management_insights_common_tags = {
+  azure_cost_and_usage_insights_common_tags = {
     category = "Insights"
     plugin   = "azure"
-    service  = "Azure/CostManagement"
+    service  = "Azure/CostAndUsage"
   }
 } 

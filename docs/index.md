@@ -1,14 +1,14 @@
-# Azure Cost Management Insights Mod
+# Azure Cost and Usage Insights Mod
 
 [Tailpipe](https://tailpipe.io) is an open-source CLI tool that allows you to collect logs and query them with SQL.
 
 [Microsoft Azure](https://azure.microsoft.com/) is a cloud computing platform operated by Microsoft for application management via Microsoft-managed data centers.
 
-The [Azure Cost Management Insights Mod](https://hub.powerpipe.io/mods/turbot/tailpipe-mod-azure-cost-management-insights) contains pre-built dashboards which can be used to monitor and analyze costs across your Azure subscriptions using [Azure Cost Management](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices).
+The [Azure Cost and Usage Insights Mod](https://hub.powerpipe.io/mods/turbot/tailpipe-mod-azure-cost-and-usage-insights) contains pre-built dashboards which can be used to monitor and analyze costs across your Azure subscriptions using [Azure Cost and Usage](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices) exports.
 
 ## Documentation
 
-- **[Dashboards →](https://hub.powerpipe.io/mods/turbot/tailpipe-mod-azure-cost-management-insights/dashboards)**
+- **[Dashboards →](https://hub.powerpipe.io/mods/turbot/tailpipe-mod-azure-cost-and-usage-insights/dashboards)**
 
 ## Getting Started
 
@@ -24,7 +24,7 @@ brew install turbot/tap/powerpipe
 sudo /bin/sh -c "$(curl -fsSL https://powerpipe.io/install/powerpipe.sh)"
 ```
 
-This mod requires Azure Cost Management data to be collected using [Tailpipe](https://tailpipe.io) with the [Azure plugin](https://hub.tailpipe.io/plugins/turbot/azure):
+This mod requires Azure Cost and Usage data to be collected using [Tailpipe](https://tailpipe.io) with the [Azure plugin](https://hub.tailpipe.io/plugins/turbot/azure):
 
 - [Get started with the Azure plugin for Tailpipe →](https://hub.tailpipe.io/plugins/turbot/azure#getting-started)
 
@@ -33,7 +33,7 @@ Install the mod:
 ```sh
 mkdir dashboards
 cd dashboards
-powerpipe mod install github.com/turbot/tailpipe-mod-azure-cost-management-insights
+powerpipe mod install github.com/turbot/tailpipe-mod-azure-cost-and-usage-insights
 ```
 
 ### Browsing Dashboards

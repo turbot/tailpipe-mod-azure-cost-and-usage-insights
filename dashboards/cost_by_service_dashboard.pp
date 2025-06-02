@@ -1,9 +1,9 @@
 dashboard "cost_by_service_dashboard" {
-  title         = "Cost Management: Cost by Service"
+  title         = "Cost and Usage: Cost by Service"
   documentation = file("./dashboards/docs/cost_by_service_dashboard.md")
 
   tags = merge(
-    local.azure_cost_management_insights_common_tags,
+    local.azure_cost_and_usage_insights_common_tags,
     {
       type = "Dashboard"
     }
@@ -92,7 +92,7 @@ query "cost_by_service_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or consumed_service in $1)
     group by
@@ -112,7 +112,7 @@ query "cost_by_service_dashboard_total_services" {
       'Services' as label,
       count(distinct consumed_service) as value
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or consumed_service in $1);
   EOQ
@@ -130,7 +130,7 @@ query "cost_by_service_dashboard_cost_by_service" {
       consumed_service as "Service",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or consumed_service in $1)
     group by
@@ -153,7 +153,7 @@ query "cost_by_service_dashboard_monthly_cost_by_service" {
       consumed_service as "Service",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or consumed_service in $1)
     group by
@@ -181,7 +181,7 @@ query "cost_by_service_dashboard_cost_by_service_details" {
       count(distinct resource_group_name) as "Resource Groups",
       count(distinct resource_id) as "Resources"
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       ('all' in ($1) or consumed_service in $1)
     group by
@@ -207,7 +207,7 @@ query "cost_by_service_dashboard_services_input" {
       consumed_service as value,
       consumed_service as label
     from
-      azure_cost_management
+      azure_cost_and_usage_details
     where
       consumed_service is not null and consumed_service != ''
     group by

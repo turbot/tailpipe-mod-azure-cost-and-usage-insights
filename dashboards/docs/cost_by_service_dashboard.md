@@ -1,4 +1,4 @@
-# Cost Management: Cost by Service Dashboard
+# Cost and Usage: Cost by Service Dashboard
 
 This dashboard provides a detailed breakdown of costs by Azure service, helping you understand which services are driving your cloud spending.
 
@@ -27,7 +27,7 @@ The dashboard includes:
 
 ## Data Sources
 
-This dashboard uses data from the `azure_cost_management` table, which is populated by the Azure plugin for Tailpipe.
+This dashboard uses data from the `azure_cost_and_usage_details` table, which is populated by the Azure plugin for Tailpipe.
 
 ## Notes
 
