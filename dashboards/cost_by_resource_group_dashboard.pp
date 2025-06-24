@@ -5,22 +5,22 @@ dashboard "cost_by_resource_group_dashboard" {
   tags = merge(
     local.azure_cost_and_usage_insights_common_tags,
     {
-      type = "Dashboard"
+      type    = "Dashboard"
+      service = "AWS/CostManagement"
     }
   )
 
   container {
-    input "cost_by_resource_group_dashboard_resource_groups" {
-      title       = "Select resource groups:"
-      description = "Choose one or more Azure resource groups to analyze."
+    input "cost_by_resource_group_dashboard_subscriptions" {
+      title       = "Select subscriptions:"
+      description = "Choose one or more Azure subscriptions to analyze."
       type        = "multiselect"
       width       = 4
-      query       = query.cost_by_resource_group_dashboard_resource_groups_input
+      query       = query.cost_by_resource_group_dashboard_subscriptions_input
     }
   }
 
   container {
-    # Summary Metrics
     card {
       width = 2
       query = query.cost_by_resource_group_dashboard_total_cost
@@ -28,7 +28,18 @@ dashboard "cost_by_resource_group_dashboard" {
       type  = "info"
 
       args = {
-        "resource_group_names" = self.input.cost_by_resource_group_dashboard_resource_groups.value
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
+      }
+    }
+
+    card {
+      width = 2
+      query = query.cost_by_resource_group_dashboard_total_subscriptions
+      icon  = "account_tree"
+      type  = "info"
+
+      args = {
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
       }
     }
 
@@ -39,46 +50,47 @@ dashboard "cost_by_resource_group_dashboard" {
       type  = "info"
 
       args = {
-        "resource_group_names" = self.input.cost_by_resource_group_dashboard_resource_groups.value
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
       }
     }
   }
 
   container {
-    # Graphs
     chart {
-      title = "Cost by Resource Group"
-      type  = "pie"
+      title = "Monthly Cost Trend"
+      type  = "column"
       width = 6
-      query = query.cost_by_resource_group_dashboard_cost_by_resource_group
+      query = query.cost_by_resource_group_dashboard_monthly_cost
 
       args = {
-        "resource_group_names" = self.input.cost_by_resource_group_dashboard_resource_groups.value
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
+      }
+
+      legend {
+        display = "none"
       }
     }
 
     chart {
-      title = "Monthly Cost Trend by Resource Group"
-      type  = "line"
-      width = 6
-      query = query.cost_by_resource_group_dashboard_monthly_cost_by_resource_group
-
-      args = {
-        "resource_group_names" = self.input.cost_by_resource_group_dashboard_resource_groups.value
-      }
-    }
-  }
-
-  container {
-    # Tables
-    chart {
-      title = "Cost by Resource Group Details"
+      title = "Top 10 Resource Groups"
       type  = "table"
-      width = 12
-      query = query.cost_by_resource_group_dashboard_cost_by_resource_group_details
+      width = 6
+      query = query.cost_by_resource_group_dashboard_top_10_resource_groups
 
       args = {
-        "resource_group_names" = self.input.cost_by_resource_group_dashboard_resource_groups.value
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
+      }
+    }
+  }
+
+  container {
+    table {
+      title = "Resource Group Costs"
+      width = 12
+      query = query.cost_by_resource_group_dashboard_resource_group_costs
+
+      args = {
+        "subscription_ids" = self.input.cost_by_resource_group_dashboard_subscriptions.value
       }
     }
   }
@@ -92,14 +104,33 @@ query "cost_by_resource_group_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or resource_group_name in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
-      billing_currency;
+      billing_currency
+    limit 1;
   EOQ
 
-  param "resource_group_names" {}
+  param "subscription_ids" {}
+
+  tags = {
+    folder = "Hidden"
+  }
+}
+
+query "cost_by_resource_group_dashboard_total_subscriptions" {
+  sql = <<-EOQ
+    select
+      'Subscriptions' as label,
+      count(distinct subscription_id) as value
+    from
+      azure_cost_and_usage_actual
+    where
+      ('all' in ($1) or subscription_id in $1);
+  EOQ
+
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
@@ -112,108 +143,115 @@ query "cost_by_resource_group_dashboard_total_resource_groups" {
       'Resource Groups' as label,
       count(distinct resource_group_name) as value
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or resource_group_name in $1);
+      ('all' in ($1) or subscription_id in $1);
   EOQ
 
-  param "resource_group_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_resource_group_dashboard_cost_by_resource_group" {
-  sql = <<-EOQ
-    select
-      resource_group_name as "Resource Group",
-      round(sum(cost_in_billing_currency), 2) as "Total Cost"
-    from
-      azure_cost_and_usage_details
-    where
-      ('all' in ($1) or resource_group_name in $1)
-    group by
-      resource_group_name
-    order by
-      sum(cost_in_billing_currency) desc;
-  EOQ
-
-  param "resource_group_names" {}
-
-  tags = {
-    folder = "Hidden"
-  }
-}
-
-query "cost_by_resource_group_dashboard_monthly_cost_by_resource_group" {
+query "cost_by_resource_group_dashboard_monthly_cost" {
   sql = <<-EOQ
     select
       strftime(date_trunc('month', date), '%b %Y') as "Month",
       resource_group_name as "Resource Group",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or resource_group_name in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
       date_trunc('month', date),
       resource_group_name
     order by
       date_trunc('month', date),
-      resource_group_name;
+      sum(cost_in_billing_currency) desc;
   EOQ
 
-  param "resource_group_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_resource_group_dashboard_cost_by_resource_group_details" {
+query "cost_by_resource_group_dashboard_top_10_resource_groups" {
   sql = <<-EOQ
     select
-      subscription_name as "Subscription",
       resource_group_name as "Resource Group",
-      round(sum(cost_in_billing_currency), 2) as "Total Cost",
-      billing_currency as "Currency",
-      count(distinct consumed_service) as "Services",
-      count(distinct resource_id) as "Resources"
+      round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or resource_group_name in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
-      subscription_name,
+      resource_group_name
+    order by
+      sum(cost_in_billing_currency) desc
+    limit 10;
+  EOQ
+
+  param "subscription_ids" {}
+
+  tags = {
+    folder = "Hidden"
+  }
+}
+
+query "cost_by_resource_group_dashboard_resource_group_costs" {
+  sql = <<-EOQ
+    select
+      resource_group_name as "Resource Group",
+      subscription_name as "Subscription",
+      round(sum(cost_in_billing_currency), 2) as "Total Cost"
+    from
+      azure_cost_and_usage_actual
+    where
+      ('all' in ($1) or subscription_id in $1)
+    group by
       resource_group_name,
-      billing_currency
+      subscription_name
     order by
       sum(cost_in_billing_currency) desc;
   EOQ
 
-  param "resource_group_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_resource_group_dashboard_resource_groups_input" {
+query "cost_by_resource_group_dashboard_subscriptions_input" {
   sql = <<-EOQ
-    select 'all' as value, 'All' as label
+    with subscription_ids as (
+      select
+        distinct on(subscription_id)
+        subscription_id ||
+        case
+          when subscription_name is not null then ' (' || subscription_name || ')'
+          else ''
+        end as label,
+        subscription_id as value
+      from
+        azure_cost_and_usage_actual
+      order by
+        subscription_id
+    )
+    select
+      'All' as label,
+      'all' as value
     union all
     select
-      resource_group_name as value,
-      resource_group_name as label
+      label,
+      value
     from
-      azure_cost_and_usage_details
-    where
-      resource_group_name is not null and resource_group_name != ''
-    group by
-      resource_group_name
-    order by
-      label;
+      subscription_ids;
   EOQ
 
   tags = {

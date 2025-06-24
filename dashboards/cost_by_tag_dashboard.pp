@@ -1,11 +1,12 @@
 dashboard "cost_by_tag_dashboard" {
-  title         = "Cost and Usage: Cost by Tag"
-  #documentation = file("./dashboards/docs/cost_by_tag_dashboard.md")
+  title = "Cost and Usage: Cost by Tag"
+  documentation = file("./dashboards/docs/cost_by_tag_dashboard.md")
 
   tags = merge(
     local.azure_cost_and_usage_insights_common_tags,
     {
       type = "Dashboard"
+      service = "Azure/CostManagement"
     }
   )
 
@@ -35,7 +36,7 @@ dashboard "cost_by_tag_dashboard" {
 
       args = {
         "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"     = self.input.cost_by_tag_dashboard_tag_key.value
+        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
       }
     }
 
@@ -62,7 +63,7 @@ dashboard "cost_by_tag_dashboard" {
 
       args = {
         "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"     = self.input.cost_by_tag_dashboard_tag_key.value
+        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
       }
 
       legend {
@@ -78,7 +79,7 @@ dashboard "cost_by_tag_dashboard" {
 
       args = {
         "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value,
-        "tag_key"     = self.input.cost_by_tag_dashboard_tag_key.value
+        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
       }
     }
 
@@ -93,7 +94,7 @@ dashboard "cost_by_tag_dashboard" {
 
       args = {
         "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"     = self.input.cost_by_tag_dashboard_tag_key.value
+        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
       }
     }
   }
@@ -109,7 +110,7 @@ query "cost_by_tag_dashboard_total_cost" {
         cost_in_billing_currency,
         billing_currency
       from 
-        azure_cost_and_usage_details
+        azure_cost_and_usage_actual
       where 
         tags is not null
         and array_contains(json_keys(tags), $2)
@@ -138,7 +139,7 @@ query "cost_by_tag_dashboard_total_subscriptions" {
       'Subscriptions' as label,
       count(distinct subscription_id) as value
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
       ('all' in ($1) or subscription_id in $1);
   EOQ
@@ -160,7 +161,7 @@ query "cost_by_tag_dashboard_monthly_cost" {
         cost_in_billing_currency,
         json_extract(tags, '$.' || $2) as tag_value
       from
-        azure_cost_and_usage_details r
+        azure_cost_and_usage_actual r
       where
         ('all' in ($1) or subscription_id in $1)
         and tags is not null
@@ -201,7 +202,7 @@ query "cost_by_tag_dashboard_top_10_tag_values" {
         subscription_id,
         cost_in_billing_currency
       from
-        azure_cost_and_usage_details
+        azure_cost_and_usage_actual
       where
         tags is not null
         and ('all' in ($1) or subscription_id in $1)
@@ -255,7 +256,7 @@ query "cost_by_tag_dashboard_tag_value_costs" {
         cost_in_billing_currency,
         resource_location
       from
-        azure_cost_and_usage_details
+        azure_cost_and_usage_actual
       where
         tags is not null
         and ('all' in ($1) or subscription_id in $1)
@@ -314,7 +315,7 @@ query "cost_by_tag_dashboard_subscriptions_input" {
       subscription_id as value,
       subscription_name as label
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
       subscription_id is not null and subscription_id != ''
       and subscription_name is not null and subscription_name != ''
@@ -336,7 +337,7 @@ query "cost_by_tag_dashboard_tag_key_input" {
       t.tag_key as label,
       t.tag_key as value
     from
-      azure_cost_and_usage_details,
+      azure_cost_and_usage_actual,
       unnest(json_keys(tags)) as t(tag_key)
     where
       tags is not null

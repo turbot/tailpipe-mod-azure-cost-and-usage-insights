@@ -5,22 +5,22 @@ dashboard "cost_by_service_dashboard" {
   tags = merge(
     local.azure_cost_and_usage_insights_common_tags,
     {
-      type = "Dashboard"
+      type    = "Dashboard"
+      service = "AWS/CostManagement"
     }
   )
 
   container {
-    input "cost_by_service_dashboard_services" {
-      title       = "Select services:"
-      description = "Choose one or more Azure services to analyze."
+    input "cost_by_service_dashboard_subscriptions" {
+      title       = "Select subscriptions:"
+      description = "Choose one or more Azure subscriptions to analyze."
       type        = "multiselect"
       width       = 4
-      query       = query.cost_by_service_dashboard_services_input
+      query       = query.cost_by_service_dashboard_subscriptions_input
     }
   }
 
   container {
-    # Summary Metrics
     card {
       width = 2
       query = query.cost_by_service_dashboard_total_cost
@@ -28,57 +28,69 @@ dashboard "cost_by_service_dashboard" {
       type  = "info"
 
       args = {
-        "service_names" = self.input.cost_by_service_dashboard_services.value
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
+      }
+    }
+
+    card {
+      width = 2
+      query = query.cost_by_service_dashboard_total_subscriptions
+      icon  = "account_tree"
+      type  = "info"
+
+      args = {
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
       }
     }
 
     card {
       width = 2
       query = query.cost_by_service_dashboard_total_services
-      icon  = "apps"
+      icon  = "layers"
       type  = "info"
 
       args = {
-        "service_names" = self.input.cost_by_service_dashboard_services.value
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
       }
     }
   }
 
   container {
-    # Graphs
     chart {
-      title = "Cost by Service"
-      type  = "pie"
+      title = "Monthly Cost Trend"
+      type  = "column"
       width = 6
-      query = query.cost_by_service_dashboard_cost_by_service
+      query = query.cost_by_service_dashboard_monthly_cost
 
       args = {
-        "service_names" = self.input.cost_by_service_dashboard_services.value
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
+      }
+
+      legend {
+        display = "none"
       }
     }
 
     chart {
-      title = "Monthly Cost Trend by Service"
-      type  = "line"
-      width = 6
-      query = query.cost_by_service_dashboard_monthly_cost_by_service
-
-      args = {
-        "service_names" = self.input.cost_by_service_dashboard_services.value
-      }
-    }
-  }
-
-  container {
-    # Tables
-    chart {
-      title = "Cost by Service Details"
+      title = "Top 10 Services"
       type  = "table"
-      width = 12
-      query = query.cost_by_service_dashboard_cost_by_service_details
+      width = 6
+      query = query.cost_by_service_dashboard_top_10_services
 
       args = {
-        "service_names" = self.input.cost_by_service_dashboard_services.value
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
+      }
+    }
+  }
+
+  container {
+    table {
+      title = "Service Costs"
+      width = 12
+      query = query.cost_by_service_dashboard_service_costs
+
+      args = {
+        "subscription_ids" = self.input.cost_by_service_dashboard_subscriptions.value
       }
     }
   }
@@ -92,14 +104,33 @@ query "cost_by_service_dashboard_total_cost" {
       'Total Cost (' || billing_currency || ')' as label,
       round(sum(cost_in_billing_currency), 2) as value
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or consumed_service in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
-      billing_currency;
+      billing_currency
+    limit 1;
   EOQ
 
-  param "service_names" {}
+  param "subscription_ids" {}
+
+  tags = {
+    folder = "Hidden"
+  }
+}
+
+query "cost_by_service_dashboard_total_subscriptions" {
+  sql = <<-EOQ
+    select
+      'Subscriptions' as label,
+      count(distinct subscription_id) as value
+    from
+      azure_cost_and_usage_actual
+    where
+      ('all' in ($1) or subscription_id in $1);
+  EOQ
+
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
@@ -112,108 +143,117 @@ query "cost_by_service_dashboard_total_services" {
       'Services' as label,
       count(distinct consumed_service) as value
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or consumed_service in $1);
+      ('all' in ($1) or subscription_id in $1);
   EOQ
 
-  param "service_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_service_dashboard_cost_by_service" {
-  sql = <<-EOQ
-    select
-      consumed_service as "Service",
-      round(sum(cost_in_billing_currency), 2) as "Total Cost"
-    from
-      azure_cost_and_usage_details
-    where
-      ('all' in ($1) or consumed_service in $1)
-    group by
-      consumed_service
-    order by
-      sum(cost_in_billing_currency) desc;
-  EOQ
-
-  param "service_names" {}
-
-  tags = {
-    folder = "Hidden"
-  }
-}
-
-query "cost_by_service_dashboard_monthly_cost_by_service" {
+query "cost_by_service_dashboard_monthly_cost" {
   sql = <<-EOQ
     select
       strftime(date_trunc('month', date), '%b %Y') as "Month",
       consumed_service as "Service",
       round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or consumed_service in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
       date_trunc('month', date),
       consumed_service
     order by
       date_trunc('month', date),
-      consumed_service;
+      sum(cost_in_billing_currency) desc;
   EOQ
 
-  param "service_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_service_dashboard_cost_by_service_details" {
+query "cost_by_service_dashboard_top_10_services" {
   sql = <<-EOQ
     select
-      subscription_name as "Subscription",
       consumed_service as "Service",
-      round(sum(cost_in_billing_currency), 2) as "Total Cost",
-      billing_currency as "Currency",
-      count(distinct resource_group_name) as "Resource Groups",
-      count(distinct resource_id) as "Resources"
+      round(sum(cost_in_billing_currency), 2) as "Total Cost"
     from
-      azure_cost_and_usage_details
+      azure_cost_and_usage_actual
     where
-      ('all' in ($1) or consumed_service in $1)
+      ('all' in ($1) or subscription_id in $1)
     group by
-      subscription_name,
+      consumed_service
+    order by
+      sum(cost_in_billing_currency) desc
+    limit 10;
+  EOQ
+
+  param "subscription_ids" {}
+
+  tags = {
+    folder = "Hidden"
+  }
+}
+
+query "cost_by_service_dashboard_service_costs" {
+  sql = <<-EOQ
+    select
+      consumed_service as "Service",
+      subscription_name as "Subscription",
+      location as "Location",
+      round(sum(cost_in_billing_currency), 2) as "Total Cost"
+    from
+      azure_cost_and_usage_actual
+    where
+      ('all' in ($1) or subscription_id in $1)
+    group by
       consumed_service,
-      billing_currency
+      subscription_name,
+      location
     order by
       sum(cost_in_billing_currency) desc;
   EOQ
 
-  param "service_names" {}
+  param "subscription_ids" {}
 
   tags = {
     folder = "Hidden"
   }
 }
 
-query "cost_by_service_dashboard_services_input" {
+query "cost_by_service_dashboard_subscriptions_input" {
   sql = <<-EOQ
-    select 'all' as value, 'All' as label
+    with subscription_ids as (
+      select
+        distinct on(subscription_id)
+        subscription_id ||
+        case
+          when subscription_name is not null then ' (' || subscription_name || ')'
+          else ''
+        end as label,
+        subscription_id as value
+      from
+        azure_cost_and_usage_actual
+      order by
+        subscription_id
+    )
+    select
+      'All' as label,
+      'all' as value
     union all
     select
-      consumed_service as value,
-      consumed_service as label
+      label,
+      value
     from
-      azure_cost_and_usage_details
-    where
-      consumed_service is not null and consumed_service != ''
-    group by
-      consumed_service
-    order by
-      label;
+      subscription_ids;
   EOQ
 
   tags = {
