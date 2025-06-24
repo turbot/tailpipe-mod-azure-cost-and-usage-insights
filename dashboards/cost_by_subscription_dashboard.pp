@@ -1,42 +1,42 @@
-dashboard "cost_by_subscription_dashboard" {
-  title         = "Cost and Usage: Cost by Subscription"
-  documentation = file("./dashboards/docs/cost_by_subscription_dashboard.md")
+dashboard "cost_and_usage_actual_cost_by_subscription_dashboard" {
+  title         = "Azure Cost and Usage Actual: Cost by Subscription"
+  documentation = file("./dashboards/docs/cost_and_usage_actual_cost_by_subscription_dashboard.md")
 
   tags = {
     type    = "Dashboard"
-    service = "Azure/CostAndUsage"
+    service = "Azure/CostManagement"
   }
 
   container {
-    input "cost_by_subscription_dashboard_subscriptions" {
+    input "cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions" {
       title       = "Select subscriptions:"
       description = "Choose one or more Azure subscriptions to analyze."
       type        = "multiselect"
       width       = 4
-      query       = query.cost_by_subscription_dashboard_subscriptions_input
+      query       = query.cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions_input
     }
   }
 
   container {
     card {
       width = 2
-      query = query.cost_by_subscription_dashboard_total_cost
+      query = query.cost_and_usage_actual_cost_by_subscription_dashboard_total_cost
       icon  = "attach_money"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.cost_by_subscription_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions.value
       }
     }
 
     card {
       width = 2
-      query = query.cost_by_subscription_dashboard_total_subscriptions
+      query = query.cost_and_usage_actual_cost_by_subscription_dashboard_total_subscriptions
       icon  = "groups"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.cost_by_subscription_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions.value
       }
     }
   }
@@ -46,10 +46,10 @@ dashboard "cost_by_subscription_dashboard" {
       title = "Monthly Cost Trend"
       type  = "column"
       width = 12
-      query = query.cost_by_subscription_dashboard_monthly_cost_by_subscription
+      query = query.cost_and_usage_actual_cost_by_subscription_dashboard_monthly_cost_and_usage_actual_cost_by_subscription
 
       args = {
-        "subscription_ids" = self.input.cost_by_subscription_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions.value
       }
 
       legend {
@@ -62,10 +62,10 @@ dashboard "cost_by_subscription_dashboard" {
     table {
       title = "Subscription Costs"
       width = 12
-      query = query.cost_by_subscription_dashboard_cost_by_subscription_details
+      query = query.cost_and_usage_actual_cost_by_subscription_dashboard_cost_and_usage_actual_cost_by_subscription_details
 
       args = {
-        "subscription_ids" = self.input.cost_by_subscription_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions.value
       }
     }
   }
@@ -73,7 +73,7 @@ dashboard "cost_by_subscription_dashboard" {
 
 # Query Definitions
 
-query "cost_by_subscription_dashboard_total_cost" {
+query "cost_and_usage_actual_cost_by_subscription_dashboard_total_cost" {
   sql = <<-EOQ
     select
       'Total Cost (' || billing_currency || ')' as label,
@@ -93,7 +93,7 @@ query "cost_by_subscription_dashboard_total_cost" {
   }
 }
 
-query "cost_by_subscription_dashboard_total_subscriptions" {
+query "cost_and_usage_actual_cost_by_subscription_dashboard_total_subscriptions" {
   sql = <<-EOQ
     select
       'Subscriptions' as label,
@@ -111,7 +111,7 @@ query "cost_by_subscription_dashboard_total_subscriptions" {
   }
 }
 
-query "cost_by_subscription_dashboard_monthly_cost_by_subscription" {
+query "cost_and_usage_actual_cost_by_subscription_dashboard_monthly_cost_and_usage_actual_cost_by_subscription" {
   sql = <<-EOQ
     select
       strftime(date_trunc('month', date), '%b %Y') as "Month",
@@ -136,7 +136,7 @@ query "cost_by_subscription_dashboard_monthly_cost_by_subscription" {
   }
 }
 
-query "cost_by_subscription_dashboard_cost_by_subscription_details" {
+query "cost_and_usage_actual_cost_by_subscription_dashboard_cost_and_usage_actual_cost_by_subscription_details" {
   sql = <<-EOQ
     select
       subscription_name as "Subscription",
@@ -158,7 +158,7 @@ query "cost_by_subscription_dashboard_cost_by_subscription_details" {
   }
 }
 
-query "cost_by_subscription_dashboard_subscriptions_input" {
+query "cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions_input" {
   sql = <<-EOQ
     with subscription_ids as (
       select

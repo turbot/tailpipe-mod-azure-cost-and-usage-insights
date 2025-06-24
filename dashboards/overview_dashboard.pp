@@ -1,22 +1,22 @@
-dashboard "overview_dashboard" {
-  title         = "Cost and Usage: Overview"
-  documentation = file("./dashboards/docs/overview_dashboard.md")
+dashboard "cost_and_usage_actual_overview_dashboard" {
+  title         = "Azure Cost and Usage Actual: Overview"
+  documentation = file("./dashboards/docs/cost_and_usage_actual_overview_dashboard.md")
 
   tags = merge(
     local.azure_cost_and_usage_insights_common_tags,
     {
-      type = "Dashboard"
+      type    = "Dashboard"
       service = "Azure/CostManagement"
     }
   )
 
   container {
-    input "overview_dashboard_subscriptions" {
+    input "cost_and_usage_actual_overview_dashboard_subscriptions" {
       title       = "Select subscriptions:"
       description = "Choose one or more Azure subscriptions to analyze."
       type        = "multiselect"
       width       = 4
-      query       = query.overview_dashboard_subscriptions_input
+      query       = query.cost_and_usage_actual_overview_dashboard_subscriptions_input
     }
   }
 
@@ -24,23 +24,23 @@ dashboard "overview_dashboard" {
     # Summary Metrics
     card {
       width = 2
-      query = query.overview_dashboard_total_cost
+      query = query.cost_and_usage_actual_overview_dashboard_total_cost
       icon  = "attach_money"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
 
     card {
       width = 2
-      query = query.overview_dashboard_total_subscriptions
+      query = query.cost_and_usage_actual_overview_dashboard_total_subscriptions
       icon  = "groups"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
   }
@@ -51,10 +51,10 @@ dashboard "overview_dashboard" {
       title = "Monthly Cost Trend"
       type  = "column"
       width = 6
-      query = query.overview_dashboard_monthly_cost
+      query = query.cost_and_usage_actual_overview_dashboard_monthly_cost
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
 
       legend {
@@ -66,10 +66,10 @@ dashboard "overview_dashboard" {
       title = "Daily Cost Trend"
       type  = "line"
       width = 6
-      query = query.overview_dashboard_daily_cost
+      query = query.cost_and_usage_actual_overview_dashboard_daily_cost
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
 
       legend {
@@ -84,10 +84,10 @@ dashboard "overview_dashboard" {
       title = "Top 10 Subscriptions"
       type  = "table"
       width = 6
-      query = query.overview_dashboard_top_10_subscriptions
+      query = query.cost_and_usage_actual_overview_dashboard_top_10_subscriptions
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
 
@@ -95,10 +95,10 @@ dashboard "overview_dashboard" {
       title = "Top 10 Resource Groups"
       type  = "table"
       width = 6
-      query = query.overview_dashboard_top_10_resource_groups
+      query = query.cost_and_usage_actual_overview_dashboard_top_10_resource_groups
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
 
@@ -106,10 +106,10 @@ dashboard "overview_dashboard" {
       title = "Top 10 Services"
       type  = "table"
       width = 6
-      query = query.overview_dashboard_top_10_services
+      query = query.cost_and_usage_actual_overview_dashboard_top_10_services
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
 
@@ -117,10 +117,10 @@ dashboard "overview_dashboard" {
       title = "Top 10 Resources"
       type  = "table"
       width = 6
-      query = query.overview_dashboard_top_10_resources
+      query = query.cost_and_usage_actual_overview_dashboard_top_10_resources
 
       args = {
-        "subscription_ids" = self.input.overview_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_overview_dashboard_subscriptions.value
       }
     }
   }
@@ -128,7 +128,7 @@ dashboard "overview_dashboard" {
 
 # Queries
 
-query "overview_dashboard_total_cost" {
+query "cost_and_usage_actual_overview_dashboard_total_cost" {
   sql = <<-EOQ
     select
       'Total Cost (' || billing_currency || ')' as label,
@@ -148,7 +148,7 @@ query "overview_dashboard_total_cost" {
   }
 }
 
-query "overview_dashboard_total_subscriptions" {
+query "cost_and_usage_actual_overview_dashboard_total_subscriptions" {
   sql = <<-EOQ
     select
       'Subscriptions' as label,
@@ -166,7 +166,7 @@ query "overview_dashboard_total_subscriptions" {
   }
 }
 
-query "overview_dashboard_monthly_cost" {
+query "cost_and_usage_actual_overview_dashboard_monthly_cost" {
   sql = <<-EOQ
     select
       strftime(date_trunc('month', date), '%b %Y') as "Month",
@@ -188,7 +188,7 @@ query "overview_dashboard_monthly_cost" {
   }
 }
 
-query "overview_dashboard_daily_cost" {
+query "cost_and_usage_actual_overview_dashboard_daily_cost" {
   sql = <<-EOQ
     select
       strftime(date_trunc('day', date), '%Y-%m-%d') as "Date",
@@ -210,7 +210,7 @@ query "overview_dashboard_daily_cost" {
   }
 }
 
-query "overview_dashboard_top_10_subscriptions" {
+query "cost_and_usage_actual_overview_dashboard_top_10_subscriptions" {
   sql = <<-EOQ
     select
       subscription_name as "Subscription",
@@ -235,7 +235,7 @@ query "overview_dashboard_top_10_subscriptions" {
   }
 }
 
-query "overview_dashboard_top_10_resource_groups" {
+query "cost_and_usage_actual_overview_dashboard_top_10_resource_groups" {
   sql = <<-EOQ
     select
       resource_group_name as "Resource Group",
@@ -260,7 +260,7 @@ query "overview_dashboard_top_10_resource_groups" {
   }
 }
 
-query "overview_dashboard_top_10_services" {
+query "cost_and_usage_actual_overview_dashboard_top_10_services" {
   sql = <<-EOQ
     select
       consumed_service as "Service",
@@ -285,7 +285,7 @@ query "overview_dashboard_top_10_services" {
   }
 }
 
-query "overview_dashboard_top_10_resources" {
+query "cost_and_usage_actual_overview_dashboard_top_10_resources" {
   sql = <<-EOQ
     select
       resource_id as "Resource",
@@ -310,7 +310,7 @@ query "overview_dashboard_top_10_resources" {
   }
 }
 
-query "overview_dashboard_subscriptions_input" {
+query "cost_and_usage_actual_overview_dashboard_subscriptions_input" {
   sql = <<-EOQ
     select 'all' as value, 'All' as label
     union all

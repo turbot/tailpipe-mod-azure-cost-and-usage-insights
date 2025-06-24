@@ -1,28 +1,28 @@
-dashboard "cost_by_tag_dashboard" {
-  title = "Cost and Usage: Cost by Tag"
-  documentation = file("./dashboards/docs/cost_by_tag_dashboard.md")
+dashboard "cost_and_usage_actual_cost_by_tag_dashboard" {
+  title         = "Azure Cost and Usage Actual: Cost by Tag"
+  documentation = file("./dashboards/docs/cost_and_usage_actual_cost_by_tag_dashboard.md")
 
   tags = merge(
     local.azure_cost_and_usage_insights_common_tags,
     {
-      type = "Dashboard"
+      type    = "Dashboard"
       service = "Azure/CostManagement"
     }
   )
 
-  input "cost_by_tag_dashboard_subscriptions" {
+  input "cost_and_usage_actual_cost_by_tag_dashboard_subscriptions" {
     title       = "Select subscriptions:"
     description = "Choose one or more Azure subscriptions to analyze."
     type        = "multiselect"
-    query       = query.cost_by_tag_dashboard_subscriptions_input
+    query       = query.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions_input
     width       = 4
   }
 
-  input "cost_by_tag_dashboard_tag_key" {
+  input "cost_and_usage_actual_cost_by_tag_dashboard_tag_key" {
     title       = "Select a tag key:"
     description = "Select a tag key to analyze costs by tag values."
     type        = "select"
-    query       = query.cost_by_tag_dashboard_tag_key_input
+    query       = query.cost_and_usage_actual_cost_by_tag_dashboard_tag_key_input
     width       = 4
   }
 
@@ -30,24 +30,24 @@ dashboard "cost_by_tag_dashboard" {
     # Combined card showing Total Cost with Currency
     card {
       width = 2
-      query = query.cost_by_tag_dashboard_total_cost
+      query = query.cost_and_usage_actual_cost_by_tag_dashboard_total_cost
       icon  = "attach_money"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions.value
+        "tag_key"          = self.input.cost_and_usage_actual_cost_by_tag_dashboard_tag_key.value
       }
     }
 
     card {
       width = 2
-      query = query.cost_by_tag_dashboard_total_subscriptions
+      query = query.cost_and_usage_actual_cost_by_tag_dashboard_total_subscriptions
       icon  = "groups"
       type  = "info"
 
       args = {
-        "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions.value
       }
     }
 
@@ -59,11 +59,11 @@ dashboard "cost_by_tag_dashboard" {
       title = "Monthly Cost by Tag Value"
       type  = "column"
       width = 6
-      query = query.cost_by_tag_dashboard_monthly_cost
+      query = query.cost_and_usage_actual_cost_by_tag_dashboard_monthly_cost
 
       args = {
-        "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions.value
+        "tag_key"          = self.input.cost_and_usage_actual_cost_by_tag_dashboard_tag_key.value
       }
 
       legend {
@@ -75,11 +75,11 @@ dashboard "cost_by_tag_dashboard" {
       title = "Top 10 Tag Values"
       type  = "table"
       width = 6
-      query = query.cost_by_tag_dashboard_top_10_tag_values
+      query = query.cost_and_usage_actual_cost_by_tag_dashboard_top_10_tag_values
 
       args = {
-        "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value,
-        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions.value,
+        "tag_key"          = self.input.cost_and_usage_actual_cost_by_tag_dashboard_tag_key.value
       }
     }
 
@@ -90,11 +90,11 @@ dashboard "cost_by_tag_dashboard" {
     table {
       title = "Tag Value Costs"
       width = 12
-      query = query.cost_by_tag_dashboard_tag_value_costs
+      query = query.cost_and_usage_actual_cost_by_tag_dashboard_tag_value_costs
 
       args = {
-        "subscription_ids" = self.input.cost_by_tag_dashboard_subscriptions.value
-        "tag_key"          = self.input.cost_by_tag_dashboard_tag_key.value
+        "subscription_ids" = self.input.cost_and_usage_actual_cost_by_tag_dashboard_subscriptions.value
+        "tag_key"          = self.input.cost_and_usage_actual_cost_by_tag_dashboard_tag_key.value
       }
     }
   }
@@ -102,7 +102,7 @@ dashboard "cost_by_tag_dashboard" {
 
 # Query Definitions
 
-query "cost_by_tag_dashboard_total_cost" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_total_cost" {
   sql = <<-EOQ
     with tagged_resources as (
       select 
@@ -133,7 +133,7 @@ query "cost_by_tag_dashboard_total_cost" {
   }
 }
 
-query "cost_by_tag_dashboard_total_subscriptions" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_total_subscriptions" {
   sql = <<-EOQ
     select
       'Subscriptions' as label,
@@ -152,7 +152,7 @@ query "cost_by_tag_dashboard_total_subscriptions" {
 }
 
 
-query "cost_by_tag_dashboard_monthly_cost" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_monthly_cost" {
   sql = <<-EOQ
     with tagged_resources as (
       select
@@ -193,7 +193,7 @@ query "cost_by_tag_dashboard_monthly_cost" {
   }
 }
 
-query "cost_by_tag_dashboard_top_10_tag_values" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_top_10_tag_values" {
   sql = <<-EOQ
     with parsed_entries as (
       select
@@ -245,7 +245,7 @@ query "cost_by_tag_dashboard_top_10_tag_values" {
   }
 }
 
-query "cost_by_tag_dashboard_tag_value_costs" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_tag_value_costs" {
   sql = <<-EOQ
     with parsed_entries as (
       select
@@ -307,7 +307,7 @@ query "cost_by_tag_dashboard_tag_value_costs" {
   }
 }
 
-query "cost_by_tag_dashboard_subscriptions_input" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_subscriptions_input" {
   sql = <<-EOQ
     select 'all' as value, 'All' as label
     union all
@@ -331,7 +331,7 @@ query "cost_by_tag_dashboard_subscriptions_input" {
   }
 }
 
-query "cost_by_tag_dashboard_tag_key_input" {
+query "cost_and_usage_actual_cost_by_tag_dashboard_tag_key_input" {
   sql = <<-EOQ
     select distinct
       t.tag_key as label,
