@@ -7,8 +7,8 @@
 The [Azure Cost and Usage Insights Mod](https://hub.powerpipe.io/mods/turbot/tailpipe-mod-azure-cost-and-usage-insights) contains pre-built dashboards which can be used to monitor and analyze costs across your Azure subscriptions using [Azure Cost and Usage](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/cost-mgt-best-practices) exports.
 
 View insights in dashboards:
-![image](docs/images/azure_cost_and_usage_overview_dashboard.png)
-![image](docs/images/azure_cost_and_usage_cost_by_service_dashboard.png)
+![image](docs/images/azure_cost_and_usage_actual_overview_dashboard.png)
+![image](docs/images/azure_cost_and_usage_actual_cost_by_service_dashboard.png)
 
 ## Documentation
 
