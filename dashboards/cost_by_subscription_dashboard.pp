@@ -2,10 +2,10 @@ dashboard "cost_and_usage_actual_cost_by_subscription_dashboard" {
   title         = "Azure Cost and Usage Actual: Cost by Subscription"
   documentation = file("./dashboards/docs/cost_and_usage_actual_cost_by_subscription_dashboard.md")
 
-  tags = {
+  tags = merge(local.azure_cost_and_usage_insights_common_tags, {
     type    = "Dashboard"
     service = "Azure/CostManagement"
-  }
+  })
 
   container {
     input "cost_and_usage_actual_cost_by_subscription_dashboard_subscriptions" {
